@@ -1,6 +1,9 @@
 import {useEffect, useState } from "react";
+import {useNavigate} from "react-router-dom";
+import axios from "axios";
 
 function ListEmployees() {
+  const navigate = useNavigate();
   const [employees, setEmployees] = useState([]);
 
   useEffect(()=> {
@@ -12,14 +15,31 @@ function ListEmployees() {
 
   },[]);
 
+  function listEmp(){
+    navigate("/add-employee")
+  }
+
+  function editEmployee(id){
+    navigate(`/update-employee/${id}`)
+  }
+
+  function deleteEmployee(empId){
+    axios.delete(`http://localhost:8080/api/v1/employee/${empId}`)
+    .then((response)=> {
+      console.log(response);
+      setEmployees(employees.filter((e)=> e.id !== empId));
+    })
+    .catch((err)=> console.log(err));
+  }
+
   return (
     <div>
       <h2 className="text-center">Employees List</h2>
+      <button className="btn btn-primary" onClick={listEmp}>Add Employee</button>
       <div className= "table table-responsive py-5">
         <table className="table table-hover table-bordered" align="center">
           <thead className="thead-dark">
             <tr>
-              <th scope="col"> S.No </th> 
               <th scope="col"> First Name </th>
               <th scope="col"> Last Name </th>
               <th scope="col"> Email Id </th>
@@ -27,13 +47,15 @@ function ListEmployees() {
             </tr>
           </thead>
           <tbody>
-            {employees.map((e, i) => {
+            {employees.map((e) => {
               return (
-                <tr key={i}>
-                  <td  scope="row"> {e.id} </td>
+                <tr key={e.id}>
                   <td> {e.firstName} </td>
                   <td> {e.lastName} </td>
                   <td> {e.emailId} </td>
+                  <td> <button onClick={()=> {editEmployee(e.id)}} className="btn btn-info"> Update </button>
+                  <button onClick={()=> {deleteEmployee(e.id)}} className="btn btn-danger"> Delete </button>
+                  </td>
                 </tr>
               );
             })}
